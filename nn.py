@@ -38,8 +38,6 @@ class NeuralNet:
             
             for mini_batch in mini_batches:
                 self.update_mini_batch(mini_batch, eta)
-                #print("biases: ", self.biases)
-                #print("weights: ", self.weights)
 
             if (test_data):
                 num_correct = self.evaluate(test_data) 
@@ -74,19 +72,9 @@ class NeuralNet:
 
             a = sigmoid(z)
             activations.append(a)
-        #print("zs ", zs)
 
         # backprop
         delta = (activations[-1] - y) * sigmoid_prime(zs[-1]) 
-        #print("delta ", delta)
-        #print("activations ", activations)
-        #print("act[1] ", activations[1])
-        #print("type(act[1]) ", type(activations[1]))
-        #print("act[1].transpose() ", activations[1].transpose())
-        #print("act[0] ", activations[0])
-        #print("type(act[0]) ", type(activations[0]))
-        #print("act[0].transpose() ", activations[0].transpose())
-        #print("mult ", np.dot(delta, activations[-2].transpose()))
         delta_nabla_b[-1] = delta
         delta_nabla_w[-1] = np.dot(delta, activations[-2].transpose())
         for l in range(len(self.weights)-2,-1,-1):
@@ -96,7 +84,6 @@ class NeuralNet:
 
             # update delta nabla b and w
             delta_nabla_b[l] = delta
-            #print("activ l ", activations[l])
             delta_nabla_w[l] = np.dot(delta, activations[l].transpose())
 
         return delta_nabla_b, delta_nabla_w
@@ -107,11 +94,6 @@ class NeuralNet:
 
     def feed_forward(self, a):
         for w,b in zip(self.weights, self.biases):
-            #print("w ", w)
-            #print("a ", a)
-            #print("b ", b)
-            #print("np.dot(w,a)", np.dot(w,a))
-            #print("np.dot(w,a)+b", np.dot(w,a)+b)
             a = sigmoid(np.dot(w,a) + b)
         return a
 
@@ -129,6 +111,7 @@ def sigmoid_prime(x):
     """
     return sigmoid(x) * (1 - sigmoid(x))
 
-nn = NeuralNet([3,5,9,1,4,3,2])
-#nn.print()
-#nn.SGD(training_data=[([[1],[2],[3]],[[1],[2]]),([[1],[2],[3]],[[1],[2]]),([[5],[6],[7]],[[3],[4]]),([[7],[8],[9]],[[4],[5]]),([[9],[10],[11]],[[5],[6]])], batch_size=2, epochs=1, eta=0.3, test_data=([[1],[2],[3]],[[1],[2]]))
+# Simple test
+# nn = NeuralNet([3,5,9,1,4,3,2])
+# nn.print()
+# nn.SGD(training_data=[([[1],[2],[3]],[[1],[2]]),([[1],[2],[3]],[[1],[2]]),([[5],[6],[7]],[[3],[4]]),([[7],[8],[9]],[[4],[5]]),([[9],[10],[11]],[[5],[6]])], batch_size=2, epochs=1, eta=0.3, test_data=([[1],[2],[3]],[[1],[2]]))
