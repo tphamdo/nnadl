@@ -38,3 +38,5 @@ Epoch 30: 9553/10000
 ```
 
 ** This is a test of my understanding of neural nets from [neuralnetsanddeeplearning.com](http://neuralnetworksanddeeplearning.com/index.html)
+
+TODO: use a fully-matrix based approach instead of iterating through each training example in the mini_batch. This should realize a speed up by taking advantage of linear algebra computational optimizations.
