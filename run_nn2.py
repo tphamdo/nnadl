@@ -4,8 +4,8 @@ import nn2 as _nn
 def main():
     train_data, validation_data, test_data = load_mnist.load_data_wrapper()
 
-    nn = _nn.NeuralNet([784,60,50,10])
-    nn.SGD(training_data=train_data, batch_size=30, epochs=30, eta=3, test_data=test_data)
+    nn = _nn.NeuralNet([784,120,10])
+    nn.SGD(training_data=train_data, batch_size=10, epochs=60, eta=0.4, lmbda=4.0,test_data=test_data)
         
 main()
 

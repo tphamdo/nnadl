@@ -1,5 +1,5 @@
 import load_mnist
-import nn2 as _nn 
+import nn1 as _nn 
 
 def main():
     train_data, validation_data, test_data = load_mnist.load_data_wrapper()

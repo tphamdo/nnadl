@@ -28,10 +28,11 @@ class NeuralNet:
         print(self.biases)
         print(self.weights)
 
-    def SGD(self, training_data, batch_size, epochs, eta, test_data = None):
+    def SGD(self, training_data, batch_size, epochs, eta, lmbda=0, test_data = None):
         """
         training_data = list of (x,y) pairs representing inputs and outputs to the net
         eta = training rate
+        lmbda = regularization parameter
         """
         print("Doing SDG...")
 
@@ -48,7 +49,7 @@ class NeuralNet:
             mini_batches = [training_data[k:k+batch_size] for k in range(0,n_data,batch_size)]
             
             for mini_batch in mini_batches:
-                self.update_mini_batch(mini_batch, eta)
+                self.update_mini_batch(mini_batch, eta, lmbda, n_data)
 
             if (test_data):
                 num_correct = self.evaluate(test_data) 
@@ -58,7 +59,7 @@ class NeuralNet:
         pass
 
 
-    def update_mini_batch(self, mini_batch, eta):
+    def update_mini_batch(self, mini_batch, eta, lmbda, n_data):
         nabla_b = [np.zeros(b.shape) for b in self.biases]
         nabla_w = [np.zeros(w.shape) for w in self.weights]
         for x,y in mini_batch:
@@ -67,7 +68,7 @@ class NeuralNet:
             nabla_w = [ nw+dnw for nw, dnw in zip(nabla_w, delta_nabla_w)]
     
         self.biases = [b-(eta/len(mini_batch)*nb) for b,nb in zip(self.biases, nabla_b)]
-        self.weights = [w-(eta/len(mini_batch)*nw) for w,nw in zip(self.weights, nabla_w)]
+        self.weights = [(1-(eta*lmbda/n_data))*w-(eta/len(mini_batch)*nw) for w,nw in zip(self.weights, nabla_w)]
 
     def backprop(self, x, y):
         delta_nabla_b = [np.zeros(b.shape) for b in self.biases]
@@ -85,7 +86,6 @@ class NeuralNet:
             activations.append(a)
 
         # backprop
-        #delta = (activations[-1] - y) * sigmoid_prime(zs[-1]) 
         delta = self.cost.delta(activations[-1],y)
         delta_nabla_b[-1] = delta
         delta_nabla_w[-1] = np.dot(delta, activations[-2].transpose())
@@ -116,7 +116,3 @@ def sigmoid(x):
 def sigmoid_prime(x):
     return sigmoid(x) * (1 - sigmoid(x))
 
-# Simple test
-# nn = NeuralNet([3,5,9,1,4,3,2])
-# nn.print()
-# nn.SGD(training_data=[([[1],[2],[3]],[[1],[2]]),([[1],[2],[3]],[[1],[2]]),([[5],[6],[7]],[[3],[4]]),([[7],[8],[9]],[[4],[5]]),([[9],[10],[11]],[[5],[6]])], batch_size=2, epochs=1, eta=0.3, test_data=([[1],[2],[3]],[[1],[2]]))
