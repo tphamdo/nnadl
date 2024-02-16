@@ -28,7 +28,7 @@ class NeuralNet:
         print(self.biases)
         print(self.weights)
 
-    def SGD(self, training_data, batch_size, epochs, eta, lmbda=0, test_data = None):
+    def SGD(self, training_data, batch_size, epochs, eta, lmbda=0, evaluation_data = None):
         """
         training_data = list of (x,y) pairs representing inputs and outputs to the net
         eta = training rate
@@ -39,9 +39,9 @@ class NeuralNet:
         training_data = list(training_data)
         n_data = len(training_data)
 
-        if test_data: 
-            test_data = list(test_data)
-            n_test = len(test_data)
+        if evaluation_data: 
+            evaluation_data = list(evaluation_data)
+            n_test = len(evaluation_data)
 
         for i in range(epochs):
             random.shuffle(training_data)
@@ -51,9 +51,9 @@ class NeuralNet:
             for mini_batch in mini_batches:
                 self.update_mini_batch(mini_batch, eta, lmbda, n_data)
 
-            if (test_data):
-                num_correct = self.evaluate(test_data) 
-                print('Epoch {0}: {1}/{2}'.format(i+1, num_correct, len(test_data)))
+            if (evaluation_data):
+                num_correct = self.evaluate(evaluation_data) 
+                print('Epoch {0}: {1}/{2}'.format(i+1, num_correct, len(evaluation_data)))
             else: 
                 print('Epoch {0} complete'.format(i+1))
         pass
@@ -100,8 +100,8 @@ class NeuralNet:
 
         return delta_nabla_b, delta_nabla_w
 
-    def evaluate(self, test_data):
-        test_results = [(np.argmax(self.feed_forward(x)), y) for (x, y) in test_data]
+    def evaluate(self, evaluation_data):
+        test_results = [(np.argmax(self.feed_forward(x)), y) for (x, y) in evaluation_data]
         return sum(int(x == y) for (x, y) in test_results)
 
     def feed_forward(self, a):
