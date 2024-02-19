@@ -1,32 +1,56 @@
 """
 An improvement on nn1.py
 1. Uses cross entry cost function instead of MSE
+2. Uses L2 regularization
+3. Uses better weight initialization technique
 """
 
 import random
-
 import numpy as np
+import load_mnist
 
 class CrossEntropyCost(object):
-
     @staticmethod
     def fn(a, y):
         return np.sum(np.nan_to_num(-y*np.log(a)-(1-y)*np.log(1-a)))
 
     @staticmethod
-    def delta(a, y):
+    def delta(a, y, z=None):
         return (a-y)
+
+class MSECost(object):
+    @staticmethod
+    def fn(a, y):
+        return 0.5*np.linalg.norm(a-y)**2
+
+    @staticmethod
+    def delta(a, y, z):
+        return (a-y) * sigmoid_prime(z)
+
+class DefaultWeightInitializer(object):
+    @staticmethod
+    def biases(sizes):
+        return [np.random.randn(y,1) for y in sizes[1:]]
+
+    @staticmethod
+    def weights(sizes):
+        return [np.random.randn(y,x)/np.sqrt(x) for x,y in zip(sizes[:-1], sizes[1:])]
+
+class LargeWeightInitializer(object):
+    @staticmethod
+    def biases(sizes):
+        return [np.random.randn(y,1) for y in sizes[1:]]
+
+    @staticmethod
+    def weights(sizes):
+        return [np.random.randn(y,x) for x,y in zip(sizes[:-1], sizes[1:])]
 
 class NeuralNet:
 
-    def __init__(self, sizes, cost=CrossEntropyCost):
-        self.biases = [np.random.randn(y,1) for y in sizes[1:]]
-        self.weights = [np.random.randn(y,x) for x,y in zip(sizes[:-1], sizes[1:])]
+    def __init__(self, sizes, cost=CrossEntropyCost, weightInitializer=DefaultWeightInitializer):
+        self.biases = weightInitializer.biases(sizes)
+        self.weights = weightInitializer.weights(sizes)
         self.cost = cost
-
-    def print(self):
-        print(self.biases)
-        print(self.weights)
 
     def SGD(self, training_data, batch_size, epochs, eta, lmbda=0, evaluation_data = None):
         """
@@ -51,11 +75,14 @@ class NeuralNet:
             for mini_batch in mini_batches:
                 self.update_mini_batch(mini_batch, eta, lmbda, n_data)
 
-            if (evaluation_data):
-                num_correct = self.evaluate(evaluation_data) 
-                print('Epoch {0}: {1}/{2}'.format(i+1, num_correct, len(evaluation_data)))
-            else: 
-                print('Epoch {0} complete'.format(i+1))
+            print('Epoch {0} complete'.format(i+1))
+            if evaluation_data: 
+                print('Accuracy on evaluation data: {0}/{1}'.format(self.evaluate(evaluation_data), len(evaluation_data)))
+
+            print('Accuracy on training data: {0}/{1}'.format(self.evaluate(training_data, is_training_data=True), len(training_data)))
+            print('Cost on training data: {0}'.format(self.total_cost(training_data, lmbda)))
+            print()
+
         pass
 
 
@@ -100,9 +127,20 @@ class NeuralNet:
 
         return delta_nabla_b, delta_nabla_w
 
-    def evaluate(self, evaluation_data):
-        test_results = [(np.argmax(self.feed_forward(x)), y) for (x, y) in evaluation_data]
-        return sum(int(x == y) for (x, y) in test_results)
+    def evaluate(self, data, is_training_data=False):
+        if is_training_data:
+            results = [(np.argmax(self.feed_forward(x)), np.argmax(y)) for (x, y) in data]
+        else:
+            results = [(np.argmax(self.feed_forward(x)), y) for (x, y) in data]
+        return sum(int(x == y) for (x, y) in results)
+
+    def total_cost(self, data, lmbda):
+        cost = 0.0
+        for x, y in data:
+            a = self.feed_forward(x)
+            cost += self.cost.fn(a, y)/len(data)
+        cost += 0.5*(lmbda/len(data))*sum(np.linalg.norm(w)**2 for w in self.weights)
+        return cost
 
     def feed_forward(self, a):
         for w,b in zip(self.weights, self.biases):
@@ -116,3 +154,8 @@ def sigmoid(x):
 def sigmoid_prime(x):
     return sigmoid(x) * (1 - sigmoid(x))
 
+if __name__ == "__main__":
+    train_data, validation_data, test_data = load_mnist.load_data_wrapper()
+
+    nn = NeuralNet([784,120,10])
+    nn.SGD(training_data=train_data, batch_size=10, epochs=60, eta=0.4, lmbda=4.0, evaluation_data=validation_data)

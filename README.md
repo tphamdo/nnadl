@@ -3,7 +3,7 @@
 There are two different implementations nn1.py and nn2.py. Both are MLPs that use Stochastic Gradient Descent with backpropagation. nn1.py uses sigmoid activations and a Mean-Squared Error cost function. nn2.py improves on nn1.py by using a Cross-Entropy cost function and L2 regularization. On the MNIST dataset, nn1.py get 95.5% accuracy and nn2.py gets 98.0% accuracy
 
 ```shell-session
-$ python3 ./run_nn1.py
+$ python3 ./nn1.py
 Doing SDG...
 Epoch 1: 8829/10000
 Epoch 2: 9125/10000
@@ -14,7 +14,7 @@ Epoch 30: 9547/10000
 ```
 
 ```shell-session
-$ python3 ./run_nn2.py
+$ python3 ./nn2.py
 Doing SDG...
 Epoch 1: 9406/10000
 Epoch 2: 9503/10000

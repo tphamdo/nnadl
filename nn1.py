@@ -4,8 +4,8 @@ without using pytorch, tensorflow, etc.
 """
 
 import random
-
 import numpy as np
+import load_mnist
 
 class NeuralNet:
 
@@ -111,7 +111,9 @@ def sigmoid_prime(x):
     """
     return sigmoid(x) * (1 - sigmoid(x))
 
-# Simple test
-# nn = NeuralNet([3,5,9,1,4,3,2])
-# nn.print()
-# nn.SGD(training_data=[([[1],[2],[3]],[[1],[2]]),([[1],[2],[3]],[[1],[2]]),([[5],[6],[7]],[[3],[4]]),([[7],[8],[9]],[[4],[5]]),([[9],[10],[11]],[[5],[6]])], batch_size=2, epochs=1, eta=0.3, test_data=([[1],[2],[3]],[[1],[2]]))
+if __name__ == "__main__":
+    train_data, validation_data, test_data = load_mnist.load_data_wrapper()
+
+    nn = NeuralNet([784,60,50,10])
+    nn.SGD(training_data=train_data, batch_size=30, epochs=30, eta=3, test_data=test_data)
+
